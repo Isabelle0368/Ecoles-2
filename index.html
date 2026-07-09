@@ -57,20 +57,6 @@
 <body>
     <h1>Recherche d'écoles</h1>
 
-    <!-- Section pour charger un fichier JSON externe -->
-    <div class="search-container">
-        <h2>Charger un fichier JSON externe</h2>
-        <input type="file" id="jsonFile" accept=".json">
-        <button onclick="loadExternalJSON()">Charger</button>
-    </div>
-
-    <!-- Section pour charger un fichier JSON depuis une URL -->
-    <div class="search-container">
-        <h2>Charger un fichier JSON depuis une URL</h2>
-        <input type="text" id="jsonURL" placeholder="URL du fichier JSON">
-        <button onclick="loadJSONFromURL()">Charger</button>
-    </div>
-
     <!-- Section pour rechercher une école par nom -->
     <div class="search-container">
         <h2>Rechercher une école par nom</h2>
@@ -151,57 +137,6 @@
                 "circonscription": "Circonscription de Marseille 3"
             }
         ];
-
-        // Fonction pour charger un fichier JSON externe
-        function loadExternalJSON() {
-            const fileInput = document.getElementById('jsonFile');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert("Veuillez sélectionner un fichier JSON.");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    schoolsData = JSON.parse(event.target.result);
-                    fillFilterOptions();
-                    alert("Fichier JSON chargé avec succès !");
-                } catch (error) {
-                    console.error("Erreur lors du chargement du fichier JSON :", error);
-                    alert("Erreur lors du chargement du fichier JSON. Vérifiez le format du fichier.");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // Fonction pour charger un fichier JSON depuis une URL
-        function loadJSONFromURL() {
-            const url = document.getElementById('jsonURL').value.trim();
-
-            if (!url) {
-                alert("Veuillez entrer une URL.");
-                return;
-            }
-
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Erreur ${response.status}: Fichier non trouvé.`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    schoolsData = data;
-                    fillFilterOptions();
-                    alert("Fichier JSON chargé avec succès depuis l'URL !");
-                })
-                .catch(error => {
-                    console.error("Erreur lors du chargement du fichier JSON :", error);
-                    alert(`Erreur lors du chargement du fichier JSON : ${error.message}`);
-                });
-        }
 
         // Remplir les options des listes déroulantes pour les filtres
         function fillFilterOptions() {
