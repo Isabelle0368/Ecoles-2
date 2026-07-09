@@ -247,3 +247,14 @@
     </script>
 </body>
 </html>
+[
+    {
+        "Nom de l'école": "Nom de l'école",
+        "Circonscription": "Nom de la circonscription",
+        "Commune": "Nom de la commune",
+        "Adresse": "Adresse de l'école",
+        "Téléphone": "Numéro de téléphone",
+        "Mail": "Adresse email"
+    },
+    ...
+]
