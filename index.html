@@ -1,26 +1,349 @@
-[
-    {
-        "Nom de l'école": "École Primaire Jean Jaurès",
-        "Circonscription": "Circonscription de Paris 1",
-        "Commune": "Paris",
-        "Adresse": "10 Rue des Écoles, 75005 Paris",
-        "Téléphone": "01 23 45 67 89",
-        "Mail": "contact@ecole-jean-jaures.fr"
-    },
-    {
-        "Nom de l'école": "École Maternelle Les Petits",
-        "Circonscription": "Circonscription de Paris 1",
-        "Commune": "Paris",
-        "Adresse": "12 Rue des Enfants, 75005 Paris",
-        "Téléphone": "01 23 45 67 90",
-        "Mail": "contact@ecole-les-petits.fr"
-    },
-    {
-        "Nom de l'école": "École Élémentaire Victor Hugo",
-        "Circonscription": "Circonscription de Lyon 2",
-        "Commune": "Lyon",
-        "Adresse": "30 Boulevard de la Liberté, 69002 Lyon",
-        "Téléphone": "04 56 78 90 12",
-        "Mail": "contact@victor-hugo-lyon.fr"
-    }
-]
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche d'écoles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        input, button, select {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+            padding: 8px 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .result-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recherche d'écoles</h1>
+
+    <!-- Section pour charger un fichier JSON externe -->
+    <div class="search-container">
+        <h2>Charger un fichier JSON externe</h2>
+        <input type="file" id="jsonFile" accept=".json">
+        <button onclick="loadExternalJSON()">Charger</button>
+    </div>
+
+    <!-- Section pour charger un fichier JSON depuis une URL -->
+    <div class="search-container">
+        <h2>Charger un fichier JSON depuis une URL</h2>
+        <input type="text" id="jsonURL" placeholder="URL du fichier JSON">
+        <button onclick="loadJSONFromURL()">Charger</button>
+    </div>
+
+    <!-- Section pour rechercher une école par nom -->
+    <div class="search-container">
+        <h2>Rechercher une école par nom</h2>
+        <input type="text" id="schoolName" placeholder="Nom de l'école">
+        <button onclick="searchSchoolByName()">Rechercher</button>
+        <div id="schoolResult" class="result-container"></div>
+    </div>
+
+    <!-- Section pour filtrer les écoles par circonscription -->
+    <div class="search-container">
+        <h2>Lister les écoles d'une circonscription</h2>
+        <select id="filterCirconscription" onchange="listSchoolsByCirconscription()">
+            <option value="">-- Sélectionnez une circonscription --</option>
+        </select>
+        <div id="circonscriptionResult" class="result-container"></div>
+    </div>
+
+    <!-- Section pour filtrer les écoles par commune -->
+    <div class="search-container">
+        <h2>Lister les écoles d'une commune</h2>
+        <select id="filterCommune" onchange="listSchoolsByCommune()">
+            <option value="">-- Sélectionnez une commune --</option>
+        </select>
+        <div id="communeResult" class="result-container"></div>
+    </div>
+
+    <script>
+        // Données JSON intégrées directement dans le code
+        let schoolsData = [
+            {
+                "Identifiant_de_l_etablissement": "001",
+                "Nom_etablissement": "École Primaire Jean Jaurès",
+                "Adresse_1": "10 Rue des Écoles",
+                "Code_postal": "75005",
+                "commune": "Paris",
+                "Telephone": "01 23 45 67 89",
+                "Mail": "contact@ecole-jean-jaures.fr",
+                "circonscription": "Circonscription de Paris 1"
+            },
+            {
+                "Identifiant_de_l_etablissement": "002",
+                "Nom_etablissement": "École Maternelle Les Petits",
+                "Adresse_1": "12 Rue des Enfants",
+                "Code_postal": "75005",
+                "commune": "Paris",
+                "Telephone": "01 23 45 67 90",
+                "Mail": "contact@ecole-les-petits.fr",
+                "circonscription": "Circonscription de Paris 1"
+            },
+            {
+                "Identifiant_de_l_etablissement": "003",
+                "Nom_etablissement": "École Élémentaire Victor Hugo",
+                "Adresse_1": "30 Boulevard de la Liberté",
+                "Code_postal": "69002",
+                "commune": "Lyon",
+                "Telephone": "04 56 78 90 12",
+                "Mail": "contact@victor-hugo-lyon.fr",
+                "circonscription": "Circonscription de Lyon 2"
+            },
+            {
+                "Identifiant_de_l_etablissement": "004",
+                "Nom_etablissement": "École Primaire Marie Curie",
+                "Adresse_1": "15 Rue Pasteur",
+                "Code_postal": "69002",
+                "commune": "Lyon",
+                "Telephone": "04 56 78 90 13",
+                "Mail": "contact@marie-curie-lyon.fr",
+                "circonscription": "Circonscription de Lyon 2"
+            },
+            {
+                "Identifiant_de_l_etablissement": "005",
+                "Nom_etablissement": "École Maternelle Les P'tits Loups",
+                "Adresse_1": "25 Rue des Petits",
+                "Code_postal": "13003",
+                "commune": "Marseille",
+                "Telephone": "04 91 23 45 67",
+                "Mail": "contact@ptits-loups-marseille.fr",
+                "circonscription": "Circonscription de Marseille 3"
+            }
+        ];
+
+        // Fonction pour charger un fichier JSON externe
+        function loadExternalJSON() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Veuillez sélectionner un fichier JSON.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    schoolsData = JSON.parse(event.target.result);
+                    fillFilterOptions();
+                    alert("Fichier JSON chargé avec succès !");
+                } catch (error) {
+                    console.error("Erreur lors du chargement du fichier JSON :", error);
+                    alert("Erreur lors du chargement du fichier JSON. Vérifiez le format du fichier.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Fonction pour charger un fichier JSON depuis une URL
+        function loadJSONFromURL() {
+            const url = document.getElementById('jsonURL').value.trim();
+
+            if (!url) {
+                alert("Veuillez entrer une URL.");
+                return;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erreur ${response.status}: Fichier non trouvé.`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    schoolsData = data;
+                    fillFilterOptions();
+                    alert("Fichier JSON chargé avec succès depuis l'URL !");
+                })
+                .catch(error => {
+                    console.error("Erreur lors du chargement du fichier JSON :", error);
+                    alert(`Erreur lors du chargement du fichier JSON : ${error.message}`);
+                });
+        }
+
+        // Remplir les options des listes déroulantes pour les filtres
+        function fillFilterOptions() {
+            // Extraire les circonscriptions uniques
+            const circonscriptions = [...new Set(schoolsData.map(school => school['circonscription']))]
+                .filter(circonscription => circonscription)
+                .sort();
+
+            // Extraire les communes uniques
+            const communes = [...new Set(schoolsData.map(school => school['commune']))]
+                .filter(commune => commune)
+                .sort();
+
+            // Remplir la liste déroulante des circonscriptions
+            const filterCirconscription = document.getElementById('filterCirconscription');
+            filterCirconscription.innerHTML = '<option value="">-- Sélectionnez une circonscription --</option>';
+            circonscriptions.forEach(circonscription => {
+                const option = document.createElement('option');
+                option.value = circonscription;
+                option.textContent = circonscription;
+                filterCirconscription.appendChild(option);
+            });
+
+            // Remplir la liste déroulante des communes
+            const filterCommune = document.getElementById('filterCommune');
+            filterCommune.innerHTML = '<option value="">-- Sélectionnez une commune --</option>';
+            communes.forEach(commune => {
+                const option = document.createElement('option');
+                option.value = commune;
+                option.textContent = commune;
+                filterCommune.appendChild(option);
+            });
+        }
+
+        // Rechercher une école par nom
+        function searchSchoolByName() {
+            const schoolName = document.getElementById('schoolName').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('schoolResult');
+
+            if (!schoolName) {
+                resultDiv.innerHTML = '<p>Veuillez entrer un nom d\'école.</p>';
+                return;
+            }
+
+            const results = schoolsData.filter(school =>
+                school['Nom_etablissement'] && school['Nom_etablissement'].toLowerCase().includes(schoolName)
+            );
+
+            if (results.length === 0) {
+                resultDiv.innerHTML = '<p>Aucune école trouvée avec ce nom.</p>';
+            } else {
+                displaySchools(results, resultDiv);
+            }
+        }
+
+        // Lister les écoles d'une circonscription
+        function listSchoolsByCirconscription() {
+            const circonscription = document.getElementById('filterCirconscription').value;
+            const resultDiv = document.getElementById('circonscriptionResult');
+
+            if (!circonscription) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            const results = schoolsData.filter(school => school['circonscription'] === circonscription);
+
+            if (results.length === 0) {
+                resultDiv.innerHTML = '<p>Aucune école trouvée pour cette circonscription.</p>';
+            } else {
+                displaySchools(results, resultDiv);
+            }
+        }
+
+        // Lister les écoles d'une commune
+        function listSchoolsByCommune() {
+            const commune = document.getElementById('filterCommune').value;
+            const resultDiv = document.getElementById('communeResult');
+
+            if (!commune) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            const results = schoolsData.filter(school => school['commune'] === commune);
+
+            if (results.length === 0) {
+                resultDiv.innerHTML = '<p>Aucune école trouvée pour cette commune.</p>';
+            } else {
+                displaySchools(results, resultDiv);
+            }
+        }
+
+        // Afficher les écoles dans un tableau
+        function displaySchools(data, resultDiv) {
+            if (data.length === 0) {
+                resultDiv.innerHTML = '<p>Aucune école trouvée.</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom de l'école</th>
+                            <th>Circonscription</th>
+                            <th>Commune</th>
+                            <th>Adresse</th>
+                            <th>Code Postal</th>
+                            <th>Téléphone</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach(school => {
+                tableHTML += `
+                    <tr>
+                        <td>${school['Identifiant_de_l_etablissement'] || 'N/A'}</td>
+                        <td>${school['Nom_etablissement'] || 'N/A'}</td>
+                        <td>${school['circonscription'] || 'N/A'}</td>
+                        <td>${school['commune'] || 'N/A'}</td>
+                        <td>${school['Adresse_1'] || 'N/A'}</td>
+                        <td>${school['Code_postal'] || 'N/A'}</td>
+                        <td>${school['Telephone'] || 'N/A'}</td>
+                        <td>${school['Mail'] || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            resultDiv.innerHTML = tableHTML;
+        }
+
+        // Charger les données au démarrage
+        window.onload = fillFilterOptions;
+    </script>
+</body>
+</html>
